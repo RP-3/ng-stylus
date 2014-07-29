@@ -10,21 +10,10 @@ app.directive('ngStylus', function(){
     link: function(scope, element){
 
       /*CHARACTER CATEGORISATION HELPER FUNCTIONS*/
-        
-      //stores coordinates as tracked when given a character
-      storeCoords = function(x, y, character){
-        if(!character.coordinates.length){
-          character.coordinates.push(x, y); //push origin coordinates if nothing else
-        }else{
-          var tuple = [
-            x - character[character.length -2],
-            y - character[character.length -1]
-          ];
-          character.coordinates.push(tuple); //push relative coordinate deltas from here
-        }
-      };
 
-      //create a new character
+      var characterStorage = []; //array in which to store saved characters
+
+      //Character constructor
       var Character = function(){
           this.coordinates = []; //storage for coordinates
           this.normalCoordinates = []; //storage for coordinate arrays of normalised length
