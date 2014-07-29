@@ -4,11 +4,11 @@
   <title>Stylus</title>
   <script src='./bower_components/angular/angular.min.js'></script>
   <script src='./app.js'></script>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div ng-app='app'>
-    <p>Foo you, {{name}}</p>
-    <canvas width='400' height='400' ng-stylus></canvas>
+    <canvas width='400' id='canvas' height='400' border-style='solid' border-width='1px' ng-stylus></canvas>
   </div>
 </body>
 </html>
