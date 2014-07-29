@@ -10,7 +10,7 @@ app.directive('ngStylus', function(){
     link: function(scope, element){
 
       var ctx = element[0].getContext('2d'); //set up canvas
-      var tracking = false; //stores tracking status
+      var tracking = false; //stores tracking status, controlling reaction to mousemove events
       var prevX, prevY; //previous coordinates
 
       //add event listener to canvas (element)
@@ -22,6 +22,13 @@ app.directive('ngStylus', function(){
         tracking = true; //tracking status to true
       });
 
+      element.bind('mouseup', function(event){
+        tracking = false; //tracking status to false
+      });
+
+      element.bind('mousemove', function(event){
+
+      });
 
     }
   };
