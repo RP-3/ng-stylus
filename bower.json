@@ -1,0 +1,28 @@
+{
+  "name": "stylus",
+  "version": "0.0.0",
+  "authors": [
+    "Rohan <sarith21@gmail.com>"
+  ],
+  "description": "Handwriting-recognition directive for Angular JS",
+  "main": "index.html",
+  "keywords": [
+    "handwriting",
+    "angular",
+    "recognition",
+    "neural",
+    "network",
+    "machine",
+    "learning",
+    "directive"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
