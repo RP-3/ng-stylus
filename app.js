@@ -45,6 +45,10 @@ app.directive('ngStylus', function(){
         }
       });
 
+      element.bind('mouseleave', function(event){
+        ctx.clearRect(0, 0, element[0].width, element[0].height); //clear canvas on mouseleave
+      });
+
     }
   };
 });
