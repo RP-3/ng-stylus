@@ -13,6 +13,13 @@ app.directive('ngStylus', function(){
       var tracking = false; //stores tracking status, controlling reaction to mousemove events
       var prevX, prevY; //previous coordinates
 
+      var draw = function(x, y, dx, dy){
+        ctx.moveTo(x, y); // set focus to starting point
+        ctx.lineTo(dx, dy); // draw to new point
+        ctx.strokeStyle = '#031c67'; //set color TODO: Make configurable
+        ctx.stroke(); //render the line
+      };
+
       //add event listener to canvas (element)
       element.bind('mousedown', function(event){
         prevX = event.offsetX; //where offsetX and Y are coordinates
