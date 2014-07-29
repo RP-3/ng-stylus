@@ -27,7 +27,15 @@ app.directive('ngStylus', function(){
       });
 
       element.bind('mousemove', function(event){
+        if(tracking){
+          newX = event.offsetX; //get new coordinate
+          newY = event.offsetY; //that the mouse just moved to
 
+          draw(prevX, prevY, newX, newY); //follow mouse movement to new coordinate
+
+          prevX = newX; //reset prevX and Y to newX and Y
+          prevY = newY; //to be ready for the next mousemove event
+        }
       });
 
     }
