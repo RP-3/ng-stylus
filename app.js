@@ -10,22 +10,44 @@ app.directive('ngStylus', function(){
     link: function(scope, element){
 
       /*CHARACTER CATEGORISATION HELPER FUNCTIONS*/
-      var cs = { //data structure to Store Coordinates of each character
-        anchor: [], //tuple of starting coordinates. All other coords relative to this. 
-        storage: [], //stores all other coords
         
+      //stores coordinates as tracked when given a character
+      storeCoords = function(x, y, character){
+        if(!character.coordinates.length){
+          character.coordinates.push(x, y); //push origin coordinates if nothing else
+        }else{
+          var tuple = [
+            x - character[character.length -2],
+            y - character[character.length -1]
+          ];
+          character.coordinates.push(tuple); //push relative coordinate deltas from here
+        }
+      };
+
+      //create a new character
+      var Character = function(){
+          this.coordinates = []; //storage for remaining coordinates
+          this.character = undefined;
+      };
+
+      Character.prototype = {
+        //function to store coordinates while user is drawing
         storeCoords: function(x, y){
-          if(!storage.length){
-            anchor.push(x, y);
+          if(!this.coordinates.length){
+            this.coordinates.push(x, y); //push origin coordinates if nothing else
           }else{
             var tuple = [
-              x - anchor[0],
-              y - anchor[1]
+              x - this.coordinates[this.coordinates.length -2],
+              y - this.coordinates[this.coordinates.length -1]
             ];
-            storage.push(tuple);
+            this.coordinates.push(tuple); //push relative coordinate deltas from here
           }
-        }
+        },
 
+        //assigns the character the its matching UTF code
+        assignCharacter: function(character){
+          this.character = character.charCodeAt(0);
+        }
       };
 
 
