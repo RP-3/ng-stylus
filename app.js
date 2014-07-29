@@ -9,6 +9,27 @@ app.directive('ngStylus', function(){
     restrict: 'A',
     link: function(scope, element){
 
+      /*CHARACTER CATEGORISATION HELPER FUNCTIONS*/
+      var cs = { //data structure to Store Coordinates of each character
+        anchor: [], //tuple of starting coordinates. All other coords relative to this. 
+        storage: [], //stores all other coords
+        
+        storeCoords: function(x, y){
+          if(!storage.length){
+            anchor.push(x, y);
+          }else{
+            var tuple = [
+              x - anchor[0],
+              y - anchor[1]
+            ];
+            storage.push(tuple);
+          }
+        }
+
+      };
+
+
+      /*STANDARD CANVAS CODE*/
       var ctx = element[0].getContext('2d'); //set up canvas
       var tracking = false; //stores tracking status, controlling reaction to mousemove events
       var prevX, prevY; //previous coordinates
