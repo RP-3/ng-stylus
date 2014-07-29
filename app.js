@@ -26,8 +26,19 @@ app.directive('ngStylus', function(){
 
       //create a new character
       var Character = function(){
-          this.coordinates = []; //storage for remaining coordinates
-          this.character = undefined;
+          this.coordinates = []; //storage for coordinates
+          this.normalCoordinates = []; //storage for coordinate arrays of normalised length
+          this.normalLength = 200; //length of normal coordinates array
+          this.character = undefined; //to be defined after input
+      };
+
+      //helper function to be "called" in the context of any array
+      var average = function(){
+        var sum = this.reduce(function(a, b){
+          return a + b;
+        });
+
+        return sum / this.length;
       };
 
       Character.prototype = {
@@ -47,6 +58,21 @@ app.directive('ngStylus', function(){
         //assigns the character the its matching UTF code
         assignCharacter: function(character){
           this.character = character.charCodeAt(0);
+        },
+
+        //standardises the length of the character array, giving normalLength features
+        normalise: function(){
+          var co = this.coordinates; //shortcut syntax
+          var newCo = this.normalCoordinates; //shortcut syntax again
+          var sf = co.length / this.normalLength; //scaling factor
+
+          while(newCo.length < this.normalLength){
+            var start = Math.round(sf + newCo.length);
+            var end = Math.round((sf+ newCo.length) + sf -1);
+            var segment = co.slice(start, end);
+            segment = average.call(segment);
+            newCo.push(segment);
+          }
         }
       };
 
