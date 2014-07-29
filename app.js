@@ -17,29 +17,30 @@ app.directive('ngStylus', function(){
       var Character = function(){
           this.coordinates = []; //storage for coordinates
           this.normalCoordinates = []; //storage for coordinate arrays of normalised length
-          this.normalLength = 200; //length of normal coordinates array
+          this.normalLength = 50; //length of normal coordinates array
           this.character = undefined; //to be defined after input
       };
 
       //helper function to be "called" in the context of any array
       var average = function(){
-        var sum = this.reduce(function(a, b){
-          return a + b;
+        var xSum = this.reduce(function(a, b){
+          return a[0] + (b[0] || 0); //add zero if only one tuple in array of tuples
         });
 
-        return sum / this.length;
+        var ySum = this.reduce(function(a, b){
+          return a[1] + (b[1] || 0);
+        });
+
+        return [xSum / this.length, ySum / this.length];
       };
 
       Character.prototype = {
         //function to store coordinates while user is drawing
-        storeCoords: function(x, y){
+        storeCoords: function(x, y, dx, dy){
           if(!this.coordinates.length){
-            this.coordinates.push(x, y); //push origin coordinates if nothing else
+            this.coordinates.push([x, y]); //push origin coordinates if nothing else
           }else{
-            var tuple = [
-              x - this.coordinates[this.coordinates.length -2],
-              y - this.coordinates[this.coordinates.length -1]
-            ];
+            var tuple = [dx - x, dy - y];
             this.coordinates.push(tuple); //push relative coordinate deltas from here
           }
         },
@@ -58,7 +59,7 @@ app.directive('ngStylus', function(){
           while(newCo.length < this.normalLength){
             var start = Math.round(sf + newCo.length);
             var end = Math.round((sf+ newCo.length) + sf -1);
-            var segment = co.slice(start, end);
+            var segment = co.slice(start, end); console.log(segment);
             segment = average.call(segment);
             newCo.push(segment);
           }
@@ -66,7 +67,9 @@ app.directive('ngStylus', function(){
       };
 
 
-      /*STANDARD CANVAS CODE*/
+      /*CANVAS CODE*/
+      var currentCharacter = new Character(); //initialise an empty character object
+
       var ctx = element[0].getContext('2d'); //set up canvas
       var tracking = false; //stores tracking status, controlling reaction to mousemove events
       var prevX, prevY; //previous coordinates
@@ -76,6 +79,8 @@ app.directive('ngStylus', function(){
         ctx.lineTo(dx, dy); // draw to new point
         ctx.strokeStyle = '#031c67'; //set color TODO: Make configurable
         ctx.stroke(); //render the line
+
+        currentCharacter.storeCoords(x, y, dx, dy); //store coordinates whenever we're drawing
       };
 
       //add event listener to canvas (element)
@@ -105,6 +110,11 @@ app.directive('ngStylus', function(){
 
       element.bind('mouseleave', function(event){
         ctx.clearRect(0, 0, element[0].width, element[0].height); //clear canvas on mouseleave
+
+        currentCharacter.normalise();
+        characterStorage.push(currentCharacter);
+        currentCharacter = new Character();
+        console.log(characterStorage[characterStorage.length -1]);
       });
 
     }
