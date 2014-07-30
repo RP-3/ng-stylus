@@ -24,11 +24,11 @@ app.directive('ngStylus', function(){
       //helper function to be "called" in the context of any array
       var average = function(){
         var xSum = this.reduce(function(a, b){
-          return a[0] + (b[0] || 0); //add zero if only one tuple in array of tuples
+          return a[0] + b[0];
         });
 
         var ySum = this.reduce(function(a, b){
-          return a[1] + (b[1] || 0);
+          return a[1] + b[1];
         });
 
         return [xSum / this.length, ySum / this.length];
@@ -52,17 +52,47 @@ app.directive('ngStylus', function(){
 
         //standardises the length of the character array, giving normalLength features
         normalise: function(){
+
           var co = this.coordinates; //shortcut syntax
           var newCo = this.normalCoordinates; //shortcut syntax again
           var sf = co.length / this.normalLength; //scaling factor
 
-          while(newCo.length < this.normalLength){
-            var start = Math.round(sf + newCo.length);
-            var end = Math.round((sf+ newCo.length) + sf -1);
-            var segment = co.slice(start, end); console.log(segment);
-            segment = average.call(segment);
-            newCo.push(segment);
+          if(co.length > this.normalLength){ //reduce length using averages
+
+            var start, end, segment;
+
+            while(newCo.length < this.normalLength){
+              start = Math.round(sf + newCo.length);
+              end = Math.round((sf+ newCo.length) + sf -1);
+              segment = co.slice(start, end); console.log(start, end);
+              segment = average.call(segment);
+              newCo.push(segment);
+            }
+
+          }else if (co.length < this.normalLength){ //increase length using linear interpolation
+
+            var anchorIndex, anchorElement, nextElement, deltaElement, delta;
+
+            for(var i=0; i<this.normalLength-1; i++){
+              anchorIndex = Math.floor(i * (co.length / this.normalLength));
+              anchorElement = co[anchorIndex]; //actually a tuple
+              nextElement = co[anchorIndex + 1] || co[co.length -1]; //also a tuple
+
+              deltaElement = [
+                nextElement[0] - anchorElement[0],
+                nextElement[1] - anchorElement[1]
+              ];
+
+              delta = (i * (co.length / this.normalLength)) % 1;
+
+              newCo[i] = [
+                anchorElement[0] + (delta * deltaElement[0]),
+                anchorElement[1] + (delta * deltaElement[1])
+              ];
+
+            }
           }
+
         }
       };
 
@@ -110,11 +140,13 @@ app.directive('ngStylus', function(){
 
       element.bind('mouseleave', function(event){
         ctx.clearRect(0, 0, element[0].width, element[0].height); //clear canvas on mouseleave
-
-        currentCharacter.normalise();
-        characterStorage.push(currentCharacter);
-        currentCharacter = new Character();
-        console.log(characterStorage[characterStorage.length -1]);
+        if(currentCharacter.coordinates.length){
+          currentCharacter.normalise();
+          currentCharacter.assignCharacter(prompt('Which character did you just sketch?'));
+          characterStorage.push(currentCharacter);
+          currentCharacter = new Character();
+          console.log(characterStorage[characterStorage.length -1]);
+        }
       });
 
     }
