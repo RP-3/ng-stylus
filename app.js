@@ -57,11 +57,13 @@ app.directive('ngStylus', function(){
           var newCo = this.normalCoordinates; //shortcut syntax again
           var sf = co.length / this.normalLength; //scaling factor
 
+          newCo.push(co.shift()); //separate first element from normalisation
+
           if(co.length > this.normalLength){ //reduce length using averages
 
             var start, end, segment;
 
-            while(newCo.length < this.normalLength){
+            while(newCo.length < this.normalLength-1){
               start = Math.round(sf + newCo.length);
               end = Math.round((sf+ newCo.length) + sf -1);
               segment = co.slice(start, end); console.log(start, end);
@@ -70,10 +72,10 @@ app.directive('ngStylus', function(){
             }
 
           }else if (co.length < this.normalLength){ //increase length using linear interpolation
-
+            
             var anchorIndex, anchorElement, nextElement, deltaElement, delta;
 
-            for(var i=0; i<this.normalLength-1; i++){
+            for(var i=1; i<this.normalLength; i++){
               anchorIndex = Math.floor(i * (co.length / this.normalLength));
               anchorElement = co[anchorIndex]; //actually a tuple
               nextElement = co[anchorIndex + 1] || co[co.length -1]; //also a tuple
