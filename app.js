@@ -17,7 +17,7 @@ app.directive('ngStylus', function(){
       var Character = function(){
           this.coordinates = []; //storage for coordinates
           this.normalCoordinates = []; //storage for coordinate arrays of normalised length
-          this.normalLength = 50; //length of normal coordinates array
+          this.normalLength = 100; //length of normal coordinates array
           this.character = undefined; //to be defined after input
       };
 
@@ -33,6 +33,8 @@ app.directive('ngStylus', function(){
 
         return [xSum / this.length, ySum / this.length];
       };
+
+      //helper function to map-reduce 
 
       Character.prototype = {
         //function to store coordinates while user is drawing
@@ -51,16 +53,14 @@ app.directive('ngStylus', function(){
         },
 
         //standardises the length of the character array, giving normalLength features
-        normalise: function(){
+        scaleMatrix: function(){
 
           var co = this.coordinates; //shortcut syntax
           var newCo = this.normalCoordinates; //shortcut syntax again
           var sf = co.length / this.normalLength; //scaling factor
-
           newCo.push(co.shift()); //separate first element from normalisation
 
           if(co.length > this.normalLength){ //reduce length using averages
-
             var start, end, segment;
 
             while(newCo.length < this.normalLength-1){
@@ -72,29 +72,31 @@ app.directive('ngStylus', function(){
             }
 
           }else if (co.length < this.normalLength){ //increase length using linear interpolation
-            
             var anchorIndex, anchorElement, nextElement, deltaElement, delta;
 
             for(var i=1; i<this.normalLength; i++){
               anchorIndex = Math.floor(i * (co.length / this.normalLength));
               anchorElement = co[anchorIndex]; //actually a tuple
               nextElement = co[anchorIndex + 1] || co[co.length -1]; //also a tuple
+              delta = (i * (co.length / this.normalLength)) % 1;
 
               deltaElement = [
                 nextElement[0] - anchorElement[0],
                 nextElement[1] - anchorElement[1]
               ];
-
-              delta = (i * (co.length / this.normalLength)) % 1;
-
               newCo[i] = [
                 anchorElement[0] + (delta * deltaElement[0]),
                 anchorElement[1] + (delta * deltaElement[1])
               ];
-
             }
           }
+        },
 
+        scaleAxes: function(){
+          var xMax = this.coordinates.map(function(element, index, array){
+
+          });
+          var yMax = undefined;
         }
       };
 
@@ -143,7 +145,7 @@ app.directive('ngStylus', function(){
       element.bind('mouseleave', function(event){
         ctx.clearRect(0, 0, element[0].width, element[0].height); //clear canvas on mouseleave
         if(currentCharacter.coordinates.length){
-          currentCharacter.normalise();
+          currentCharacter.scaleMatrix();
           currentCharacter.assignCharacter(prompt('Which character did you just sketch?'));
           characterStorage.push(currentCharacter);
           currentCharacter = new Character();
