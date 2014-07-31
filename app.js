@@ -4,14 +4,12 @@ app.run(function($rootScope){
   $rootScope.name = 'Tubby';
 });
 
-app.directive('ngStylus', function(){
+app.directive('ngStylus', function($http){
   return {
     restrict: 'A',
     link: function(scope, element){
 
       /*CHARACTER CATEGORISATION HELPER FUNCTIONS*/
-
-      var characterStorage = []; //array in which to store saved characters
 
       //Character constructor
       var Character = function(){
@@ -41,6 +39,12 @@ app.directive('ngStylus', function(){
         return result;
       };
 
+      var flatten = function(array){
+        return array.reduce(function(a, b){
+          return a.concat(b);
+        });
+      };
+
       Character.prototype = {
         //function to store coordinates while user is drawing
         storeCoords: function(x, y, dx, dy){
@@ -50,9 +54,10 @@ app.directive('ngStylus', function(){
         //assigns the character its matching UTF code
         assignCharacter: function(character){
           this.character = character.charCodeAt(0);
+          this.scaledCoordinates.unshift(character.charCodeAt(0));
         },
 
-        //standardises the length of the character array, giving normalLength features
+        //scale all coords to be between 0 and 1.
         scaleMatrix: function(){
           var max = getMax(this.coordinates);
           var min = getMin(this.coordinates);
@@ -61,7 +66,7 @@ app.directive('ngStylus', function(){
 
           this.scaledCoordinates = this.coordinates.map(function(tuple, index, array){
             var newTuple = [tuple[0] - min[0], tuple[1] - min[1]]; //scale all numbers down so all coords are relative to zero
-            newTuple = [(newTuple[0] / range[0])*100, (newTuple[1] / range[1])*100]; //scale all coords to vary from 0 - 100
+            newTuple = [newTuple[0] / range[0], newTuple[1] / range[1]]; //scale all coords to vary from 0 - 1
             return newTuple;
           });
         },
@@ -130,14 +135,29 @@ app.directive('ngStylus', function(){
         //extract important values, push to storage and get ready for new character
         if(currentCharacter.coordinates.length){
           currentCharacter.scaleMatrix();
-          currentCharacter.trackingMatrix();
+          //currentCharacter.trackingMatrix();
+          currentCharacter.scaledCoordinates = flatten(currentCharacter.scaledCoordinates);
           currentCharacter.assignCharacter(prompt('Which character did you just sketch?'));
-          characterStorage.push(currentCharacter);
-          currentCharacter = new Character();
+
+          scope.send(currentCharacter.scaledCoordinates);
+
           console.log(characterStorage[characterStorage.length -1]);
+          currentCharacter = new Character();
         }
       });
 
-    }
+    },
+    controller: ['$scope', '$http', function($scope, $http){
+      $scope.send = function(json){
+
+        $http.post('http://localhost:3000', json).
+          success(function(data, status, headers, config) {
+            console.log(status);
+          }).
+          error(function(data, status, headers, config) {
+            console.log(status);
+          });
+      };
+    }]
   };
 });
