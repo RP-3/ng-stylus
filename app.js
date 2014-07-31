@@ -141,7 +141,7 @@ app.directive('ngStylus', function($http){
 
           scope.send(currentCharacter.scaledCoordinates);
 
-          console.log(characterStorage[characterStorage.length -1]);
+          console.log(currentCharacter);
           currentCharacter = new Character();
         }
       });
