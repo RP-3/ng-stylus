@@ -13,6 +13,7 @@ app.use(function(req, res){
   if(Array.isArray(req.body)){
     writer.writeRecord(req.body);
   }
+  res.send(200);
 });
 
 
