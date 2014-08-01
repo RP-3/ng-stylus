@@ -90,6 +90,18 @@ app.directive('ngStylus', function($http){
         });
       };
 
+      var toObject = function(arr){
+        var obj = {input: {}, output: {} };
+
+        for(var i=1; i<arr.length; i++){
+          obj.input[i] = arr[i];
+        }
+
+        obj.output[arr[0]] = 1;
+
+        return obj;
+      };
+
       Character.prototype = {
         //function to store coordinates while user is drawing
         storeCoords: function(x, y, dx, dy){
@@ -99,7 +111,7 @@ app.directive('ngStylus', function($http){
         //assigns the character its matching UTF code
         assignCharacter: function(character){
           this.character = character.charCodeAt(0);
-          this.scaledCoordinates.unshift(character.charCodeAt(0));
+          this.relativeCoordinates.unshift(character.charCodeAt(0));
         },
 
         //scale all coords to be between 0 and 1.
@@ -121,9 +133,9 @@ app.directive('ngStylus', function($http){
           var data = this.scaledCoordinates;
           var segmentSize = Math.floor(data.length / this.normalLength);
 
-          for(var i=0; i <= this.normalLength; i++){
+          for(var i=0; i < this.normalLength; i++){
             var index = i * segmentSize;
-            this.relativeCoordinates.push(data[index]);
+            this.relativeCoordinates.push(data[index][0], data[index][1]);
           }
         }
       };
@@ -178,12 +190,14 @@ app.directive('ngStylus', function($http){
           currentCharacter.scaleMatrix();
           currentCharacter.trackingMatrix();
           currentCharacter.scaledCoordinates = flatten(currentCharacter.scaledCoordinates);
-          //currentCharacter.assignCharacter(prompt('Which character did you just sketch?'));
+          currentCharacter.assignCharacter(prompt('Which character did you just sketch?'));
 
-          //scope.send(currentCharacter.scaledCoordinates);
+          var datum = toObject(currentCharacter.relativeCoordinates);
 
-          console.log(JSON.stringify(currentCharacter.relativeCoordinates));
-          console.log(calculateScores(currentCharacter.relativeCoordinates, characterBank));
+          scope.send(datum);
+
+          console.log(JSON.stringify(datum));
+          //console.log(calculateScores(currentCharacter.relativeCoordinates, characterBank));
 
           currentCharacter = new Character();
         }
